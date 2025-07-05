@@ -1,0 +1,43 @@
+# Compiler and flags
+CC = gcc
+CFLAGS = -Wall -Wextra -O2
+
+# Library name and extension
+LIBNAME = libbigint
+LIBEXT = so  # Default to .so for Unix-like systems
+
+script = hw1.py
+INPUT_FILE = inputs.txt
+
+
+# OS detection to switch between .dll and .so
+ifeq ($(OS), Windows_NT)
+    LIBEXT = dll  # Use .dll for Windows
+    CFLAGS += -m32  # Add 32-bit flag for MinGW
+endif
+
+# Source and object files
+SRC = bigint.c
+OBJ = bigint.o
+
+# Python script
+PYTHON = python  # or 'python3' if 'python' points to Python 2 on your system
+SCRIPT = hw1.py
+INPUT_FILE = inputs.txt
+
+# Targets
+all: $(LIBNAME).$(LIBEXT)
+
+$(LIBNAME).$(LIBEXT): $(OBJ)
+	$(CC) -shared -o $@ $^
+
+$(OBJ): $(SRC)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	del /Q *.o *.$(LIBEXT)  # Use 'rm -f' on Unix-like systems
+
+run: $(LIBNAME).$(LIBEXT)
+	$(PYTHON) $(SCRIPT) $(INPUT_FILE)
+
+.PHONY: all clean run
